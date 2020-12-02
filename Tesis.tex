@@ -1,0 +1,1262 @@
+\documentclass[a4paper]{article}
+
+
+\usepackage[spanish]{babel}
+\selectlanguage{spanish}
+%\usepackage[latin1]{inputenc} %%%%%%%%%%%%%
+%\usepackage[utf8x]{inputenc} %%%%%%%%%%%%%%
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2cm]{geometry}
+\usepackage{amsmath, amsthm, amsfonts}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{Documento V1.0.0}
+\fancyhead[RE,LO]{Maestría en Inteligencia Analítica para la Toma de Decisiones}
+\fancyfoot[CE,CO]{UNIVERSIDAD DE LOS ANDES}
+\fancyfoot[LE,RO]{Sección \thesection, página \thepage}
+\usepackage[utf8]{inputenc}
+\usepackage{fancybox}
+\usepackage{multicol}
+%\usepackage{bookmark}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+\usepackage[colorinlistoftodos, spanish]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{newunicodechar}
+%\usepackage[backend=bibtex,style=verbose-trad2]{biblatex}
+%\usepackage[nottoc]{tocbibind}
+\usepackage[citestyle=authoryear]{biblatex}
+\bibliographystyle{apalike}
+\bibliography{tesis_reference}
+%\newunicodechar{I }{ó}
+
+
+
+\begin{document}
+\begin{titlepage}
+	\centering
+	\includegraphics[width=0.5\textwidth]{Universidad de los Andes.png}\par\vspace{1cm}
+	%{\scshape\LARGE Universidad de los Andes \par}
+	\vspace{1cm}
+	{\scshape\Large Herramienta de ubicación para nuevos puntos de venta en Bogotá de acuerdo con la aglomeración de transacciones.\par}
+	\vspace{1.5cm}
+	{\scshape\Large Tesis presentada como requisito para optar al título de: \textbf{Magister en Inteligencia Analítica para la Toma de Decisiones} \par}
+	\vspace{1.5cm}
+	{\huge\bfseries \href{https://uniandes.edu.co/}{Universidad de los Andes.}\par}
+	\vspace{2cm}
+	{\Large\itshape Sergio Alberto Mora Pardo \par}
+	\small Universidad de los Andes\\
+	\small \href{mailto:s.morap@uniandes.edu.co}{s.morap@uniandes.edu.co}\\
+	\small cod.: 201920547\\
+	\small Bogotá D.C.\\
+	{\Large\itshape Jahir Stevens Rodriguez Riveros \par}
+	\small Universidad de los Andes\\
+	\small \href{mailto:js.rodriguezr@uniandes.edu.co}{js.rodriguezr@uniandes.edu.co}\\
+	\small cod.: 201819361\\
+	\small Bogotá D.C.
+	\date{}
+	\vfill
+	Asesor: \par
+	\small \href{https://industrial.uniandes.edu.co/es/nuestro-equipo/decano-y-profesores/andres-medaglia}{Andrés \textsc{Medaglia, PhD., P.D.}}
+	\\
+	Pre-Asesor: \par
+	\small ~Carlos \textsc{Caro, MsC.}
+	\vfill
+	{\large \today\par}
+\end{titlepage}
+
+\newpage
+
+\textit{Lema}\\
+\\
+\newline
+\newline
+\newline
+
+\begin{flushright}
+	\textit{Al final del día la satisfacción más grande que uno puede obtener es que sus estudiantes le digan gracias y que Dios lo bendiga.}\\
+\end{flushright}
+
+\begin{flushright}
+	\textbf{Juan Carlos Cano}
+\end{flushright}
+
+\newpage
+
+\title{Herramienta de ubicación para nuevos puntos de venta en Bogotá de acuerdo con la aglomeración de transacciones en una unidad geográfica.}
+
+\maketitle
+
+\begin{abstract}
+	La Vicepresidencia de Transformación de Redeban necesita crear una herramienta que apoye la toma de decisiones de sus afiliados al momento de elegir la ubicación de un nuevo punto de venta, basado en la concentracion de transacciones definidas en una unidad geográfica en Bogotá D.C.
+
+	El objetivo de este trabajo de grado es construir un dashboard con el que los clientes de Redeban puedan consultar la información transaccional de la entidad para utilizarla en su proceso de toma de decisiones al momento de querer abrir un nuevo punto de venta. Con este fin, la pregunta de investigación es la siguiente: ¿Cómo organizar la información transaccional y presentársela a los clientes de Redeban para que la utilicen en sus procesos de toma de desiciones para abrir un nuevo punto de venta en la ciudad de Bogotá D.C? En este contexto, se debe buscar la forma de presentar la información.
+
+	La pregunta de investigación se responderá mediante la ejecución de un proyecto de analítica siguiendo las buenas prácticas del framework: Certified Analytics Professional (CAP®), se aplican técnicas y conceptos de Segmentación, DEA (Análisis Envolvente de Datos), análisis espacial y Visualización de datos. Los resultados han mostrado que los mapas de calor son útiles para ordenar y representar la información transaccional de Redeban y se hace más valioso poder filtrar la información por la unidad geográfica, el rango de tiempo a analizar y la categoría como se implementó en el dashboard. 
+
+	El resultado obtenido con la implementación del dashboad fue percibido como valioso por la vicepresidencia, porque esta programando una presentación para compartir los resultados con otras áreas de las organización y realizar una prueba de mercado de activación.
+
+	Se puede seguir mejorando la herramienta optimizando el código, enriqueciendo la información con otras capas y automatizando la identificación de lugares de interés que afectan el volumen de las transacciones realizadas por los comercios.
+
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\listoffigures
+
+%\listoftables
+
+%\listoftodos
+
+\newpage
+
+\section{Introducción}
+
+El Core de negocio de Redeban ha sido el Switch transaccional , donde se recibe el 50\% de las transacciones realizadas con tarjetas a nivel nacional. Redeban como empresa de tecnología que facilita los medios de pago, quiere ofrecer soluciones anexas al switch transaccional, es decir, su aspiración es ofrecer soluciones para que sus clientes actuales y potenciales la escojan como su red de preferencia.
+
+Redeban usa la información de su base de datos, referente a todas las transacciones que pasan por su Core de negocio, para transformarla en valor y ofrecerla a sus clientes, quienes son los Comercios y Entidades financieras. A partir de lo anterior, Redeban creó “DataMÁS” que es Plataforma de analítica para la ayudar en la toma de decisiones, con la que se busca desarrollar 3 líneas de análisis, siendo los siguientes: Información Descriptiva, Modelos Analíticos y Modelos de Recomendación.
+
+Como parte del proceso de desarrollo del producto “DataMÁS”, la gerencia de Inteligencia de Negocios de Redeban en su rol comercial visitó sus clientes en múltiples ocasiones, y éstos requirieron como recomendación y necesidad, que se les suministrara información que permitiera determinar una ubicación conveniente en la ciudad de Bogotá D.C para tomar la decisión de aperturar o no, un nuevo punto de venta.
+
+Para abarcar la problemática presentada por los clientes de Redeban, es necesario contar con el histórico de transacciones que se han realizado por el switch desde el 2012, el valor con el que se generaron éstas, el espacio georeferencial de las mismas, la categoría de los comercios, entre otras relevantes y relacionadas a conceptos transaccionales, como los bancos generadores y receptores del pago, las franquicias de las tarjetas crédito o debito generadoras del pago.
+
+En virtud de lo anterior, se debe constatar si las variables mencionadas anteriormente, deben o no, tenerse en cuenta para tomar la decisión mas favorable para el cliente. Es importante hacer referencia, que para Redeban es relevante que el desarrollo de la problemática propuesta se enfoque no sólo en conocer el comportamiento transaccional, sino describir el comportamiento de un atributo para complementar el análisis y tomar la decisión.
+
+Para definir, de forma enfática cuál es la problemática planteada que se quiere resolver o solucionar, se presenta el siguiente interrogante, ¿Cómo determinar cuál es la ubicación teniendo presente la concentración de transacciones en una unidad geográfica y categoría de los clientes de Redeban (Comercios y Entidades Financieras)  en Bogotá para que den apertura a nuevos puntos de venta?
+
+\section{Entendimiento del problema de negocio}
+\subsection{Pregunta de negocio}
+
+La Vicepresidencia de Transformación de Redeban necesita crear una herramienta que apoye la toma de decisiones de sus afiliados al momento de elegir la ubicación de un nuevo punto de venta, basado en la concentración de transacciones definidas en una unidad geográfica en Bogotá D.C. 
+
+La necesidad que tiene la vicepresidencia supera el alcance que se puede cubrir con este trabajo de grado, ya que no se cuentan con estudios previos donde se hayan indagado el valor que tiene para los clientes la información transaccional en el proceso de toma de decisiones de un afiliado para elegir la ubicación de un nuevo punto de venta, pero se tiene conocimiento que los clientes tienen interes de tener acceso a la información porque se lo expresaron a la vicepresidente en unas entrevistas que le realizo a algunos de los comercios afiliados. De acuerdo a lo anterior, se propone responder a la pregunta:
+
+\textbf{¿Cómo organizar la información transaccional y presentarsela a los clientes de Redeban para que la utilicen en sus procesos de toma de desiciones para abrir un nuevo punto de venta en la ciudad de Bogotá D.C?}
+
+\subsection{Identificación de Stakeholders}
+
+La identificación de los interesados se realiza a partir del flujo que sigue un pago electrónico a través de Redeban. El cual se ilustra en la siguiente imagen:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{flujograma Redeban.png}
+    \caption{Flujograma de la red de Redeban. Fuente \textbf{Redeban}.}
+    \label{fig:flujograma}
+\end{figure}
+
+En la ilustración \ref{fig:flujograma} se señala los comercios quienes han sido identificados como el principal interesado en el proyecto. A continuación, se listan los stakeholders identificados:
+
+\textbf{Sponsors}
+
+\begin{itemize}
+	\item Vicepresidente de Transformación.
+\end{itemize}
+
+\textbf{Decision makers}
+
+\begin{itemize}
+	\item Gerencia de BI.
+	\item Regional de Bogotá con sus seccionales sur y norte.
+\end{itemize}
+
+\textbf{Stakeholders}
+\begin{itemize}
+	\item Clientes comerciales de Redeban.
+	\item La gerencia de planeación.
+	\item Presidencia.
+	\item Credibanco (competencia directa de Redeban).
+\end{itemize}
+
+\subsection{Determinar si el problema se puede resolver con un enfoque analítico}
+
+\subsubsection{¿La solución analítica y el proceso está en control de Redeban?}
+
+El problema que surge a partir de la pregunta de negocio definida en la sección 3.1 que para ser resuelta requiere una solución de analítica porque requiere que se actividades de ETL para preparar los datos, de DEA para realizar un análisis envolvente de datos y una visualización mediante la construcción de un Dashboard, aportando suficientes herramientas para tomar la decisión de ubicar un nuevo punto de venta.
+
+\subsubsection{¿Existen los datos necesarios o se pueden obtener?}
+
+La compañía ha estado almacenando información desde el año 2012 de las transacciones de los colombianos y cuenta con las características geográficas, temporales, montos, descripción de los comercios en donde se transa. En un futuro se desea tener la información demográfica de los clientes. Diariamente se almacena información de 3 millones de transacciones de las cuales, 1.2 millones son exitosas de acuerdo con \cite{ARTICLE:1}.
+
+\subsubsection{¿Puede la compañia desplegar la solución?}
+
+La empresa cuenta con toda una infraestructura de servidores en su red de procesamiento de bajo valor para alojar y publicar soluciones analíticas a las cuales pueden acceder sus clientes.
+
+
+\subsection{Restricciones}
+
+Resultado de la riqueza y amplia variedad de información con la que cuenta la entidad se establecen unos lineamientos necesarios para la buena operación del proyecto:  
+
+\begin{itemize}
+	\item Comercios de la ciudad de Bogotá que cuenta con información de georeferenciación.
+	\item Solo sobre transacciones de compra exitosas realizadas durante el año 2018.
+	%\item Sólo se hará la primera fase de la solución, no se construirá un modelo de optimización que refine la solución. \todo{No creo que se necesaria con la pregunta que deje pero lo dejo en el documento para que miremos en la versión final si debemos dejar esa nota.}
+\end{itemize}
+
+
+
+\subsection{Objetivos}
+
+\subsubsection{Objetivo General}
+
+Crear una herramienta que apoye la toma de decisiones de los afiliados de \textbf{Redeban} al momento de elegir la ubicación de un nuevo punto de venta, basado en la concentración de transacciones definidas en una unidad geográfica en Bogotá D.C.
+
+\subsubsection{Objetivos Especificos}
+\begin{itemize}
+	\item Determinar cuál es la ubicación de un nuevo punto de venta, teniendo presente la concentración de transacciones en una unidad geográfica de Bogotá D.C., para los afiliados de Redeban
+	\item Evaluar distintas unidades geográficas para determinar una que permita generalizar la cantidad y el valor de las transacciones.
+	\item Analizar geográficamente la concentración del volumen y valor de las transacciones.
+	\item Analizar la temporalidad la concentración del volumen y valor de las transacciones.
+	\item Desarrollo de una herramienta de visualización de la información histórica de Redeban.
+\end{itemize}
+\section{Planteamiento Analítico del Problema}
+\subsection{Reformular el problema de negocio como un problema de analítica}
+
+El problema de negocio es \textbf{Encontrar cómo organizar la información transaccional y presentarsela a los clientes de Redeban para que la utilicen en sus procesos de toma de desiciones para abrir un nuevo punto de venta en la ciudad de Bogotá D.C.}
+
+Al traducir el problema de negocio como en un problema de analítica se identifica que se deben aplicar las siguiente tecnicas analíticas:
+
+\begin{itemize}
+	\item Segmentación es un conjunto de técnicas multivariantes utilizadas para clasifica a un conjunto de individuos en grupos homogéneos. \cite{WEBSITE:1} %\footnote{\href{https://www.uv.es/ceaces/multivari/cluster/CLUSTER2.htm}{https://www.uv.es/ceaces/multivari/cluster/CLUSTER2.htm}}.
+	\item El DEA (Análisis Envolvente de Datos) es una técnica que, a partir de datos sobre recursos empleados y resultados obtenidos para un conjunto de Unidades de Toma de Decisión (DMU), hace posible la evaluación de la eficiencia relativa de cada una de ellas. \cite{ARTICLE:3} %\footnote{\href{https://idus.us.es/bitstream/handle/11441/44842/Evaluaci\%c3\%b3n\%20de\%20la\%20eficiencia\%20de\%20grupos\%20de\%20investigaci\%c3\%b3n\%20mediante\%20an\%c3\%a1lisis\%20envolvente\%20de\%20datos\%20\%28DEA\%29.pdf?sequence=1&isAllowed=y}{Evaluación de la eficiencia de grupos de investigación mediante análisis envolvente de datos (DEA)}}.
+	\item El análisis espacial de las características de las transacciones realizadas por los establecimientos comerciales teniendo en cuenta su ubicación geografica en un punto del espacio.
+	\item Visualización de datos: \textit{'La visualización a partir de los datos pretende construir un conjunto gráfico, sintético o complementario, que destaque lo más significativo o los asuntos clave, que permitan entender, establecer agrupaciones, relaciones o tendencias estadísticas, que reduzcan al mínimo la entropía y facilite el obtener conclusiones o pruebas para su interpretación. Las denominadas minerías de datos usadas dentro del ámbito de los observatorios de vigilancia técnica o científica puede aportar herramientas de mucha utilidad general'} \cite{ARTICLE:2}.
+\end{itemize}
+
+\textbf{El problema de analítica es cómo definir y constuir una herramienta de ubicación de acuerdo a la aglomeración de transacciones para nuevos puntos de venta en Bogotá}
+
+
+
+\subsection{Conjunto propuesto de salidas}
+
+A continuación se encuentra un esquema para abordar el conjunto de salidas:% \todo{Parce puede colocar una gráfica más ilustrativa y que depronto no se vea sacada de la presentación? Podría basarse en la gráfica 22.}:
+
+\begin{figure}[h]
+    \centering
+	%\includegraphics{outputs.png}
+	\includegraphics[scale = 0.5]{salidas.png}
+    \caption{Conjunto propuesto de salidas.}
+    \label{fig:conjunto_salidas}
+\end{figure}
+
+En la ilustración\footnote{RDM: sigla que hace referencia a \textbf{Redeban}} número \ref{fig:conjunto_salidas} en la página \pageref{fig:conjunto_salidas} con los conjuntos de datos de entrada y las salidas propuestas. A continuación, un par de ejemplos:
+
+\subsubsection*{Etiquetado de comercios}
+
+\begin{enumerate}
+	\item Entrada:
+	\begin{enumerate}
+		\item Identificador del comercio.
+		\item Latitud del comercio.
+		\item Longitud del comercio.
+		\item Polígonos de la Localdiad, UPZ, Barrios y manzanas de Bogotá D.C.
+	\end{enumerate}
+	\item Salida:
+	\begin{enumerate}
+		\item Comercio con la identificación de la Localidad, Barrio, y Manzana de Bogotá D.C.
+	\end{enumerate}
+\end{enumerate}
+
+\subsubsection{Consolidación de transacciones diarías por comercio}
+
+\begin{enumerate}
+	\item Entrada:
+	\begin{enumerate}
+		\item Identificador del comercio.
+		\item Fecha de la transacción.
+		\item Hora de la transacción.
+		\item Tipo de transacción.
+		\item Moneda de la transacción.
+		\item Valor de la transacción.
+	\end{enumerate}
+	\item Salida:
+	\begin{enumerate}
+		\item Fecha.
+		\item Suma de transacciones.
+		\item Número de transacciones.
+		\item Mayor transacción.
+		\item Menor transacción.
+		\item Tiquete promedio.
+		\item Desviasión de transacciones.
+		\item Varianza de transacciones.
+	\end{enumerate}
+\end{enumerate}
+
+
+\subsection{Supuestos e indicadores de éxito del proyecto}
+
+Se cuenta con el acompañamiento necesario por parte de los funcionarios de Redeban para poder desarrollar de forma exitosa el proyecto, dado que los autores del trabajo de grado no conocen en profundidad el negocio.
+
+Se parte del supuesto que la entidad cuenta con una buena cantidad de datos y que su calidad es buena de tal manera que luego de realizar los procesos de ETL se pueda trabajar con ellos y no se termine concluyendo que no es posible trabajar con los datos de Redeban para realizar un trabajo de analítica que permita responder la pregunta que propone resolver con este proyecto.
+
+La información de las transacciones no esta capturando la información de georeferenciación del dispositivo desde el que se están realizado la operaciónm por lo que se asume que las transacciones son realizadas desde la ubicación en la que se tiene registrado el establecimiento comercial.
+
+
+\subsection{Métricas de éxito}
+
+Validar el correcto funcionamiento de las aglomeraciones en el análisis geográfico al identificar las principales zonas comerciales de la ciudad. Luego de que sea validado se pueden realizar otros hallazgos.
+
+Contruir un dashboard que pueda utilizar la vicepresindencia de transformación, para responder la solicitud que le hicieron los comercios que pidieron que les compartan la información de las transacciones que se hacen por medio de \textbf{Redeban}, para incluirlo en sus proceso de toma de decisiones para abrir nuevos comercios. Se considerará cumplida la metrica si el sponsor solicita que se implemente en la infraestructura de la Redeban y que se le presente a la vicepresidencia.
+
+\subsubsection{Métricas de los modelos}
+
+Para el proyecto se contemplan métricas descriptivas como, datos perdidos, la desviación y la varianza, dado que el alcance del proyecto es de orden descriptivo y que la riqueza de la información con la que cuenta Redeban es muy buena por lo que para realizar las aglomeraciones no se requirió utilizar modelos de segmentación.
+
+\subsubsection{Métricas de negocio}
+
+Activar el 40\% de un grupo de 10 clientes potenciales a los que se les va a compartir un video con la demostración del dashboard donde se les indica que si llenan el formulario podrán acceder a la herramienta.\\
+
+\shadowbox{
+	\begin{minipage}[b][1\height][t]{0.9\textwidth}
+	NOTA: Esta métrica actualmnte rigue y depende de la gestión de Redeban con respecto a los afiliados. A la generación del documento no se ha medido la métrica.
+\end{minipage}}\\
+
+\subsection{Acuerdo con los Stakeholder}
+
+Se acuerda con el sponsor designado por Redeban reunirnos cada dos semanas para ir obteniendo su aprobación del trabajo realizado y se establece que los autores del proyecto deben generar los artefactos para cumplir con las métricas de éxito de orden analítico y académico.
+
+El sponsor es reponsable de generar los espacios para socializar los resultados del trabajo al interior de Redeban y de que se mida la métrica de negocio.
+
+
+\section{Datos}
+
+Para la extracción y recolección de los datos se dipusó de una base de datos que replica en un ambiente de pruebas
+la información dispuesta en productivo de las bases de datos de \textbf{Redeban}. Esta misma, es accesible a
+través de consultas SQL (Sequence Query Language), por medio de un servicio
+con \href{https://www.teradata.com.es/}{Teradata}.
+
+\subsection{Identificar y priorizar necesidades de datos y recursos}
+
+Se deasea explorar la necesidad de los comercios afiliados a \textbf{Redeban} para ubicar nuevos puntos de venta en Bogotá.
+Para esto, se revisó la información disponible por Redeban para construir la herramienta e información externa. Acotando en los siguientes grupos:
+
+\begin{itemize}
+	\item \textbf{Comercio}:Longitud, Latitud, Identificador, Nombre, categoría.
+	\item Polígonos por \textbf{Unidad Georáfica}: Localidad, UPZ, Barrio.
+	\item \textbf{Transacciones}: Fecha, hora, valor, tipo.
+\end{itemize}
+
+\subsection{Identificar medios de recolección y adquisición de datos}
+
+\subsubsection{Recolección de datos Redeban}
+Se identifica que el medio de recolección para Redeban es una \textit{vista}. La cúal, contiene los siguientes campos:
+
+\begin{multicols}{2}
+\begin{itemize}
+	\item Cod Clase Disp: código del tipo de dispositivo.
+	\item Cod Consecutivo Trans: consecutivo de transacción.
+	\item Cod Tipo Tarifa Comision: tarifa de comisión que se le aplica al comercio.
+	\item Fecha Trama Trans: Fecha de la transacción, frecuencia diaría.
+	\item Hora Trama Trans: Hora de la transacción, frecuencia en segundos.
+	\item Id Comercio: Identificador del comercio.
+	\item Id Ent Adquirente: Entidad adquiriente de la transacción.
+	\item Id Ent Emisor: Entidad emisora de la transacción.
+	\item Id Medio Pago: tipo del pago de la transacción.
+	\item Id Moneda Origen: Moneda origen de la transacción.
+	\item Id Moneda Transaccion: Valor convertido de la moneda origen de la transacción.
+	\item Id Pais Origen Datafono: País de origen del datafono usado en la transacción.
+	\item Id Processing Code: código de prosesamiento de la transacción.
+	\item Id Responde Trans: codigo de respuesta de la transacción.
+	\item Id Tipo Tarjeta: tipo de la tarjeta de la transacción. (debito o crédito)
+	\item Nm Datafono: número del datafono usado en la transacción.
+	\item Num Aprobacion: número de aprobación de la transacción.
+	\item Num Cuotas: número de cuotas de la transacción.
+	\item Pct ReteICA: porcentaje de rete ICA de la transacción.
+	\item Pct Retencion: porcentaje de retención de la transacción.
+	\item Pct Tarifa Comision: porcentaje de la tarifa de comisión por la transacción.
+	\item Val IVA: valor de IVA de la transacción.
+	\item Val Impuesto Consumo: valor de impuesto al consumo de la transacción.
+	\item Val Propina Pesos: propina en pesos de la transacción.
+	\item Val ReteFuente: Valor de retención en la fuente de la transacción.
+	\item Val ReteICA: Valor de retención ICA de la transacción.
+	\item Val Tasa Cambio: valor de la tasa de cambio de la moneda origen de la transacción.
+	\item Val Trans Moneda Origen: valor de la transacción en moneda origen.
+	\item Val Trans Pesos: valor de la transacción en pesos.
+\end{itemize}
+\end{multicols}
+
+\subsubsection{Recolección de datos externos}
+
+Redeban dentro de la información disponible no cuenta aún con la identificación plena de los comercios de acuerdo a una unidad geográfica.
+Es decir, que aún no se ha identificado la Localidad, UPZ y barrio al que pertenece cada comercio.
+
+De manera, que se usará la información extraida del \href{https://bogota-laburbano.opendatasoft.com/pages/home/?flg=es}{Laboratorio Urbano de Bogotá}. En donde se encuentran los polígonos de Localidades, UPZ y barrios.
+
+\subsubsection{Adquisición de información}
+
+Con la información disponible de \textbf{Redeban} se esperaba iniciar el procesamiento de datos. Sin embargo, no parece ser eficiente
+usar los datos en la forma en una forma tan desagregada, pues a futuro puede afectar la escalabilidad de la herramienta
+debido a su alto volumen (cercano a los $57'000.000$ de registros por analizar).
+
+Debido a que, se pueden agregar las transacciones por día. Teniendo, una observación diaría por comercio. Además, es posible acotar el rango de tiempo
+que tiene Redeban (el rango va desde el año 2012 hasta la actualidad).
+
+Y de esta manera, se agrupan los datos de \textbf{Redeban} para poder extraer, en forma más eficiente, no solo debido a un número de registros.
+Sino a un rango de tiempo especifico por analizar. De este modo, se dividieron en dos etapas la extracción de datos.
+
+\begin{enumerate}
+	\item Fase de análisis: se escogio una muestar aleatoria de $1'000.000$ de registros del año 2018.
+	\item Fase de implementación: se extraen las mismas variables de la fase uno. De todos los comercios afiliados a \textbf{Redeban} disponibles.
+\end{enumerate}
+
+Priorizando las variables de la siguiente manera:
+
+\begin{multicols}{2}
+	\begin{enumerate}
+		\item FECHA
+		\item ID COMERCIO
+		\item COMERCIO
+		\item CATEGORIA
+		\item TIPO
+		\item LATITUD
+		\item LONGITUD
+		\item SUM TRANSACCION
+		\item NUM TRANSACCION
+		\item MAX TRANSACCION
+		\item MIN TRANSACCION
+		\item TRANSACCION
+		\item MED TRANSACCION
+		\item STD TRANSACCION
+		\item VAR TRANSACCION
+	\end{enumerate}
+\end{multicols}
+
+\subsubsection{Caracterización}
+
+\textbf{Información de Redeban}
+
+\begin{multicols}{2}
+	\begin{enumerate}
+		\item FECHA: Fecha de la transacción.
+		\begin{itemize}
+			\item Tipo: Fecha
+			\item Frecuencia: Diaría.
+			\item Inicio: 01 ene. 2018
+			\item Termina: 31 dic. 2018
+		\end{itemize}
+		\item ID COMERCIO: Identificador único del comercio.
+		\begin{itemize}
+			\item Tipo: Númerico.
+			\item 737.833 comercios a nivel nacional.
+			\item 123.568 comercios en Bogotá.
+		\end{itemize}
+		\item COMERCIO: Nombre del comercio.
+		\begin{itemize}
+			\item Tipo: Alfanúmerico.
+		\end{itemize}
+		\item CATEGORIA: Categoría a la que pertenece el comercio.
+		\begin{itemize}
+			\item 227 Tipos.
+			\item 25 Agrupaciones.
+		\end{itemize}
+		\item TIPO: Tipo de la transaccion (Presencial o Virtual).
+		\begin{itemize}
+			\item Online o virtuales: 16\%
+			\item Presencial: 84\%
+		\end{itemize}
+		\item LATITUD: Latitud de la ubicación del comercio.
+		\item LONGITUD: Longitud de la ubicación del comercio.
+		\item SUM TRANSACCION: Suma de transaciones del comercios para esa fecha.
+		\item NUM TRANSACCION: Cuenta del número de transacciones del comercio para esa fecha.
+		\item MAX TRANSACCION: Valor máximo registrado por una transaccion en ese comercio para esa fecha.
+		\item MIN TRANSACCION: Valor mínimo registrado por una transaccion en ese comercio para esa fecha.
+		\item TRANSACCION: Valor promedio de la transacción del comercio para esa fecha.
+		\item MED TRANSACCION: Mediana del valor de las transacciones del comercio para esa fecha.
+		\item STD TRANSACCION: Desviasión estándar de las transacciones del comercio para esa fecha.
+		\item VAR TRANSACCION: Varianza de las transacciones del comercio para esa fecha.
+	\end{enumerate}
+\end{multicols}
+
+Es de resaltar que los campos: SUM TRANSACCIÓN, NUM transacciÓN, MAX TRANSACCIÓN, MIN TRANSACCIÓN, MED TRANSACCIÓN, STD TRANSACCIÓN y VAR TRANSACCIÓN. Son características
+creadas a partir de la agrupación de transacciones diarías. Con el fin de describir el comportameinto transaccional por comercios del día observado dentro del año 2018.
+
+\textbf{Información Externa}
+
+\begin{enumerate}
+	\item Tenemos los polígonos de:
+	\begin{itemize}
+		\item 20 localidades.
+		\item 116 UPZ.
+		\item 1.158 barrios.
+		\item 43.973 manzanas.
+	\end{itemize}
+\end{enumerate}
+
+\subsection{Limpieza y Etiquetado}
+\subsubsection{Limpieza}
+
+Para la fase de limpieza de los datos, se validó la tipología de cada una de los campos en la \textit{vista} entregada por \textbf{Redeban}.
+Y se determinaron los siguientes aspectos a revisar:
+\begin{multicols}{2}
+	\begin{itemize}
+		\item Integridad de los datos.
+		\item Correccción de los datos.
+		\item Coherencia de los datos.
+		\item Obsolencia en los datos.
+		\item Colaboración entre datos.
+		\item Confidencialidad de los datos.
+		\item Claridad.
+		\item Formato común.
+		\item Conveniencia.
+		\item Rentabilidad.
+	\end{itemize}
+\end{multicols}
+
+\subsubsection*{Integridad de los datos:}
+
+Dentro de la integralidad de los datos, se deben observar si los datos de los campos
+están completos. Se evidencia que no todos los datos de los campos están completos.
+De manera que no se tiene una integralidad total. Por ejemplo, Hacen falta cerca de $75.000$ comercios en los campos de \textit{Longitud} y \textit{Latitud}.
+
+Adicional a esto, los comercios (Identificadores y Nombres) no tenian valores nulos
+dado que la \textit{vista} de Redeban tiene un script que limpia estos valores. Para las transacciones,
+se evidenciaron cercanos valores cercanos a 0, valores negativos y valores nulos (vacios).
+
+\subsubsection*{Correccción de los datos:}
+
+Con la integralidad mencionada anteriormente, es necesario corregir estos valores nulos para \textit{Latitud} y \textit{Longitud}.
+Es decir, el tratamiento de datos perdidos. Donde, se eliminaron los registros vacios de \textit{Longitud} y \textit{Latitud}.
+Dado, que sin esta información no era posible ubicar o taggear al comercio dentro de uno de los polígonos de una unidad geográfica. Se mantuvieron los registros
+vacios de los demás campos relacionados con transacciones.
+
+Para los campos relacionados con las transacciones, se imputo con cero, de acuerdo a lo indicado por \textbf{Redeban}.
+Y como se indicó anteriormente, no se encontro valores nulos en el campos de fecha, Identificador de comercio, Nombre del comercio, Categoría del comercio. Esto debido a
+una limpieza previa realizada por el script que actualiza la \textit{vista} que se usará de Redeban.
+
+\subsubsection*{Coherencia de los datos:}
+
+Los datos proporcionados son consistentes con la definición de cada concepto enmarcado por el campo. Es decir,
+No sé detectaron inconsistencias dentro de los campos con respecto al concepto de este y sus datos. Inicialmnte, se validó que Cada uno de los campos númericos, contenía números y de igual manera,
+cada uno de los campos alfanúmericos, únicamente contenian valores alfanúmericos.
+
+Así mismo, se valida la consistencia de los campos. De manera que:
+
+\begin{itemize}
+	\item Los campos de \textit{Longitud} y \textit{Latitud} cumplan con un valor númerico dentro del rango que describe el poligono geográfico de Bogotá.
+	\item Se revisó que los campos de las transacciones tenían valores negativos o cero fuesen consistentes. Esto sucede por reversiónes en las transacciones dejando la transacción en valores negativos o cero.
+	\item Todos los comercios tengan un código númerico o identificador.
+	\item Todos los comercios tengan un valor alfanúmerico como nombre, pueden existir comercios con nombre númerico u otros con nombre alfabetico.
+	\item Todas las fechas, corresponden a una fecha con formato 'dd-mon-yyyy' y con frecuencia diaria.
+\end{itemize}
+
+
+\subsubsection*{Obsolencia en los datos:}
+
+Los datos dados por \textbf{Redeban} representan el comportamiento de compra de una muestra de la población y
+en este sentido, este comportamiento no es obsoleto, ya que de acuerdo \cite{ARTICLE:1} \textbf{Redeban} se encuentra en un punto,
+donde los datos inician su vida \textit{útil} y no la finalizan.
+
+\subsubsection*{Colaboración entre datos:}
+
+Los datos son basados en transcciones monetarias entre entidades financieras, personas y comercios.
+En este sentido, los datos no son basados en opinión o concenso de expertos en el área.
+
+\subsubsection*{Confidencialidad de los datos:}
+
+Al momento, esta información será anonimizada (para los comercios) y luego agregada (por categoría). De manera,
+que pueden tener acceso a ella los afiliados que Redeban consideré. De modo que, los tomadores de decisión (afiliados de Redeban) tengan acceso a esta herramienta sin violentar el uso autorizado.\\
+\\
+
+
+\shadowbox{
+	\begin{minipage}[b][1\height][t]{0.9\textwidth}
+	NOTA: Los derechos de privacidad y autorización de uso de información a terceros pertenece a Redeban.
+\end{minipage}}\\
+
+\subsubsection*{Claridad:}
+
+Los datos son legibles y compresibles. Esto dado que son compilados por cada transacción y no vienen, por ejemplo, de formularios escritos a mano o son escritura natural.
+
+\subsubsection*{Formato común:}
+
+Los datos están en un formato que permite utilizar la aplicación para la que están destinados. Es de resaltar, que muchos de estos no fueron generados para este fin, pero si se ajusta como base a la aludida herramienta proposito de este proyecto.
+
+\subsubsection*{Conveniencia:}
+
+Se puede acceder a los datos de manera conveniente y rápida en un marco de tiempo que permita su uso eficaz. Sin embargo, en algunos casos que se mencionarán más adelante, se demostrará que la extracción de los datos, es más eficiente dividiendo las consultas de los datos y segmentadolas en unidades geográficas.
+
+\subsubsection*{Rentabilidad:}
+
+Este no es el proposito del proyecto. Sin embargo, simplemente se mencionará con intención de ilustrar el alcance de una decisión basada en esta información. Inicialmente, el costo de extraer la información es marginal para \textbf{Redeban}. Y por contraste, las decisiones que pueden tomarse basandose en esta información puede ayudar a ahorrar considerablemente el margen de costo en una inversión e incluso, salvaguardarla de generar perdidas.
+
+\subsubsection{Etiquetado}
+
+El etiquetado es como se llamó el proceso de enriquecimiento de datos realizado para cada uno de los comercios al zonificarlos en las localidades, UPZ, barrios y manzanas que son las subdivisiones territoriales con las que cuenta la ciudad y de las que tiene el distrito información de georeferenciación para delimitar cada una de la zonas o polígonos. Al cruzar la información del punto de georeferenciación del comercio con polígono se puede determina si se encuentra dentro de esa área.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{etiquetado.jpeg}
+    \caption{Ejemplo de etiqueta.}
+    \label{fig:etiquetado}
+\end{figure}
+
+
+Por ejemplo, en la gráfica \ref{fig:etiquetado} el punto rojo se encuentra fuera del polígono del barrio Vergel por lo que no será etiquetado, al contrario del punto verde.
+
+\subsection{Análisis Descriptivo de Datos}
+
+El análisis descriptivo de datos, se divide en dos secciones. La primera, es la referente a los hallazgos por unidad geográfica. Que permiten,
+concluir una unidad \textit{mínima} de análisis. Así como confirmaciónes a la intuición empirica. Y la segunda, se encuentra en el dashboard con
+esta misma información replicada para distintas unidades geográficas y sus correspondientes niveles.
+
+\subsubsection{Análisis geográfico}
+
+El análisis geográfico se realiza tomando de forma agregada la información. Es decir sin tener en cuenta la categoría de las transácciones y la fechas en las que se realizaron. Se inicia explorando la cantidad de los comercios por localidad. Donde se encuentra que se cuenta con comercios georeferenciados en las 20 localidades de Bogotá. Incluida Sumapaz que es una localidad rural con 1 comercio. Este hallazgo es interesante porque muestra que Redeban tiene cobertura en toda Bogotá.
+
+Se encuentra que la localidad de Chapinero es la que tiene la mayor cantidad de comercios, 18.150. Se compara el resultado con la información de la Cámara de Comercio y se confirma que por la distribución comercial debe ser la localidad con el mayor número de comercios, a pesar que no es una de las grandes.
+
+\begin{center}
+	\textit{En Chapinero se localiza el mayor número de empresas de Bogotá, 23.581, equivalente al 12\%. La estructura empresarial de la localidad se concentra en el sector servicios (84\%), industria (5,9\%) y construcción (5,8\%). La localidad Chapinero representa el 5\% del área total de la ciudad. \footnote{Perfil económico y empresarial – Localidad Chapinero (Cámara de Comercio de Bogotá, 2006)}}
+\end{center}
+
+El siguiente paso se centra en encontrar la mejor forma de representar la información sobre la geografía de la ciudad, se concluye que la mejor alternativa son los mapas de calor porque son muy útiles cuando se tienen conjuntos de datos muy grandes, ya que permiten representar en el mapa la densidad de puntos. 
+
+A continuación el trabajo se centra en seleccionar una unidad de análisis geográfico para responder la pregunta ¿Cuál es la unidad geográfica de análisis? Primero se analiza la información tomando como unidad geográfica la manzana, para lo que se gráfican las 10 manzanas con el mayor número de comercios:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.9]{geo_1.png}
+    \caption{Top 10 de manzanas. Fuente propia.}
+    \label{fig:manzanas}
+\end{figure}
+
+Del análisis por manzana (gráfica \ref{fig:manzanas}) se identifica que el top 10 de las manzanas se concentran en los centros comerciales. Hallazgo que valida el funcionamiento del mapa, pero que no nos muestra una gran dispersión de los comercios para analizar.
+
+Se repite el proceso de analisis para los barrios a primera vista se puede observar que hay una mayor dispersión en la concentración de los comercios.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.9]{barrios.png}
+    \caption{Top 10 de barrios. Fuente propia.}
+    \label{fig:barrios}
+\end{figure}
+
+Se encuentra que el barrio con el mayor número de comercios es el Barrio Chicó Norte consistente con la gráfica \ref{fig:barrios}. 
+
+Al contrastar el resultado con la información de la Cámara de Comercio de Bogotá se confirma que el resultado es consistente. Es una buena forma de ordenar los datos para analizarlos y facilita su interpretación. Después se revisa en mayor detalle la distribución de los comercios en el barrio seleccionado, revisando el compartamiento del mapa por la concentración de comercios y de las transacciones:
+
+\begin{figure}[!tbp]
+	\begin{subfigure}[b]{0.4\textwidth}
+		\includegraphics[scale = 0.7]{geo_23.png}
+		\caption{Concntración de comercios.}
+		\label{fig:concentracion_comercios}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.4\textwidth}
+		\includegraphics[scale = 0.7]{geo_32.png}
+		\caption{Concentración de transacciones.}
+		\label{fig:concentracion_transacciones}
+	\end{subfigure}
+	\caption{Distribución comercios Chicó Norte. Fuente propia.}
+\end{figure}
+
+
+Al comparar las gráficas \ref{fig:concentracion_transacciones} y la gráfica \ref{fig:concentracion_comercios} se observa que los mapas no se identifica un relación entre la concentración de los comercios y la cantidad de transacciones. 
+
+Aunque el mapa de transacciones muestra que la mayor cantidad de puntos calientes se encuentran alrededor del parque de la 93. 
+
+Para confirmar la hipótesis se evalúan dos comercios con características similares para ver si la distacia a la que se encuentra el comercio del parque tiene un efecto en las transacciones.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{geo_end.png}
+    \caption{Influencia distancia la parque. Fuente propia.}
+    \label{fig:parque}
+\end{figure}
+
+El gráfico \ref{fig:parque} muestra que si hay un efecto en el volúmen de las transacciones realizadas, ya que entre mayor cercanía al parque también es mayor la cantidad de transacciones que realiza el establecimiento. Las UPZ y localidad cubren áreas muy extensas razón por la que se descartaron como unidad geográfica de análisis, de acuerdo a lo anterior se concluye que la unidad geográfica de análisis más apropiada es el barrio.
+
+\subsubsection{Análisis de temporalidad}
+
+Para este analisis se planea abordar desde diferentes ángulos y agrupaciones. De manera que permita al comercio afiliado a \textbf{Redeban} tomar decisiones basadas en las visualizaciones. Dentro del contenido, se usan algunas indicaciones de \cite{BOOK:1}\\
+\\
+
+\shadowbox{
+	\begin{minipage}[b][1\height][t]{0.9\textwidth}
+	NOTA: \textbf{NO} todos los gráficos a continuación hacen parte de la demostración final del dashboard. \textit{Unidad geográfica: \textbf{Barrio}; Zona: \textbf{'CHICO NORTE'}\footnote{En una sección posterior se expondrá la motivación e intención de los gráficos dejados en el Dashboard.}}
+	\end{minipage}
+	}\\
+
+En esta sección se expondrá parte del análisis temporal realizado. Primero se hace una agrupación por día. Luego, se hace una agrupación por mes. Siguiendo por una agrupación por semana y finalmente, una agrupación por horas.
+
+\subsubsection*{Agrupación por día}
+
+Se iniciará con una agrupación por día. Para este primer acercaiento se usará indexada la fecha y el total de las transacciones será la suma de las mismas, para cada día dentro de la serie.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{evolution_trx.png}
+    \caption{Evolución de transacción agrupadas por día.}
+    \label{fig:evolution_trx}
+\end{figure}
+
+
+Con la granuralidad definida por día. Realizaremos el análisis, de manera que en la gráfica \ref{fig:evolution_trx} se ve la evolución de la serie de la suma de transacciones realizadas por día. Se evidencia que tiene un incremento, aparentemente, significativo en diciembre. No obstante, aún no tenemos evidencia para afirmar tener una tendencia que aumente en diciembre.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.4]{evolution_trx.png}
+    \caption{Evolución del logaritmo de las transacciones agrupadas por día.}
+    \label{fig:evolution_trx}
+\end{figure}
+
+
+Se realiza una transformación logarítmica sobre la serie evidenciado en la gráfica \ref{fig:evolution_trx_2} situado en la página \pageref{fig:evolution_trx} y se observa que al igual que en la serie a nivel, tenemos un incremento previo a diciembre y un decrecimiento en el valor total de transacciones para finales de diciembre. Ahora, Se realiza una descomposición de la serie para comparar su componente estacionario, tendencia y los residuos.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.4]{evolution_trx_2.png}
+    \caption{Evolución del logaritmo de las transacciones agrupadas por día.}
+    \label{fig:evolution_trx_2}
+\end{figure}
+
+El fin de realizar una descomposición de una serie de tiempo es evaluar los siguientes componentes:
+
+\begin{itemize}
+	\item Tendencia: Considerada como la evolución a largo plazo de la serie observada.
+	\item Ciclo: Formada por oscilaciones alrededor de la tendencia. En general, el ciclo es periorido y con amplitudes superior al año.
+	\item Estacional: Conformado por los componentes de tendencia y ciclo de la serie observada. En general, se repiten de forma periodica y con amplitud inferior al año.
+	\item Irregular: Hace referencia a movimientos irregulares, pasajeros y erraticos. En general, este componente se comprende como aleatorio en sus movimientos.
+\end{itemize}
+
+De acuerdo a los componentes anteriores, tenemos que existen dos esquemas de interacción entre estos componentes: Esquema aditivo, Esquema multiplicativo. Para el presente análisis, se usa el esquema aditivo que comprende:
+
+\begin{equation}
+Y = (T + C) + E + I
+\end{equation}
+
+donde,
+
+\begin{itemize}
+	\item $Y$: serie observada.
+	\item $T$: Componente de Tendencia.
+	\item $C$: Componente de Ciclo.
+	\item $E$: Componente Estacional.
+	\item $I$: Componente Irregular.
+\end{itemize}
+
+Suponiendo de esta forma que las variables se relacionan e interactuan aditivamente.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{descomposicion_nivel.png}
+    \caption{Descomposición temporal de la serie a nivel.}
+    \label{fig:descomposicion_nivel}
+\end{figure}
+
+Como se observa en la gráfica \ref{fig:descomposicion_nivel} en la página \pageref{fig:descomposicion_nivel} se evidencia un aumento en el valor total de las transacciones por día para inicios de diciembre. Intiutivamente, se podría atribuir a la \textit{temporada} navideña. Es decir, que es consistente con la temporada de \textit{diciembre} en Colombia.
+
+También, se evidencia que tiene un marcado componente estacional debido al tamaño de la amplitud entre cada ciclo. Esto, es consistente con el total de transacciones por mes (30 días). Donde, para oscilación los últimos días del mes aumenta el total de transacciones, consistente con la fecha de pago de nómina de las empresas.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{descomposicion_log.png}
+    \caption{Descomposición temporal de la serie con una transformación logarítmica.}
+    \label{fig:descomposicion_log}
+\end{figure}
+
+En la gráfica \ref{fig:descomposicion_log} se tiene un comportamiento muy similar. Excepto por el recorrido ciclico evidenciado en el componente estacional (igualmente, marcado que en la gráfica \ref{fig:descomposicion_log}) donde, la amplitud entre fluctuaciones es menor.
+
+\subsubsection*{Estacionariedad}
+
+La evaluación de la estacionariedad de la serie, iniciará realizando pruebas de primeras diferencias sobre la serie a nivel y sobre la serie logarítmica. De manera, que podamos decidir en cual es estas dos se tenga un menor componente de tendencia (suprimido por el ejercicio de primeras diferencias). En este sentido, tenemos:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{estacionariedad.png}
+    \caption{Primeras diferencias apicadas a la serie de tiempo a nivel.}
+    \label{fig:estacionariedad}
+\end{figure}
+
+En la gráfica \ref{fig:estacionariedad} se evidencia que la tendencia desaparece. Parece tener una varianza no constante la serie de tiempo del total de transacciones por día para \textit{Chicó Norte}.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{estacionariedad_log.png}
+    \caption{Primeras diferencias aplicadas a la serie de tiempo con la transformación logarítmica.}
+    \label{fig:estacionariedad_log}
+\end{figure}
+
+En este sentido, para la gráfica \ref{fig:estacionariedad_log} se evidencia que no parece tener diferencias considerables sobre el efecto en la varianza y al igual que en la gráfca \ref{fig:estacionariedad} se evidencia que la tendencia desaparece.
+
+A continuación, se evaluara la serie a nivel y la serie con la transaformación logarítmica para determinar la estacionariedad con el test de \textbf{Dickey-Fuller}.
+
+Este test, se describe un modelo autorregresivo de orden (1) de la siguiente manera:
+
+\begin{equation}
+Y_t = \rho \ cdot y_{t-1} + u_t
+\end{equation}
+
+Donde,
+
+\begin{itemize}
+	\item $Y_y$ es la serie de tiempo observada.
+	\item $t$ es el tiempo indexado.
+	\item $\rho$ es un coeficiente.
+	\item $u_t$ es el error.
+\end{itemize}
+
+Dentro del test, existe raíz unitaria sí $\rho = 1$. En el ejemplo, el modelo no sería estacionario. Entendindo la \textit{raíz unitaria} como una carácteristica de las series de tiempo que evolucionan a través del tiempo.
+
+En este sentido, la hipótesis nula de la prueba es que existe raíz unitaria en la serie. Aplicando el test a la serie a nivel, se tiene:
+
+\begin{equation}
+	\textit{Dickey-Fuller: serie nivel}
+
+	ADF \ Statistic: -2.909240
+
+	p-value: 0.044284
+
+	Critical \ Values:
+
+	\textbf{1\%}: -3.449
+
+	\textbf{5\%}: -2.870
+
+	\textbf{10\%}: -2.571
+\end{equation}
+
+Es decir, que con un nivel de significancia del 5\%, la serie del total de las transacciones agrupadas por día, es estacionaria. Por intuición, se inferiría que la serie con la transformación logarítmica igumente debe ser estacionaria. Y aplicando el test a la serie con la transformación logarítmica, se tiene:
+
+\begin{equation}
+	\textit{Dickey-Fuller: serie log}
+
+	ADF \ Statistic: -4.869646
+
+	p-value: 0.000040
+
+	Critical \ Values:
+
+	\textbf{1\%}: -3.445
+
+	\textbf{5\%}: -2.868
+
+	\textbf{10\%}: -2.570
+\end{equation}
+
+Por lo tanto, con una significancia del 5\%, la serie de transacciones agrupadas por día y con una transformación logarítmica, es igualmente estacionaria. Y se puede concluir que con la aplicación del test de \textbf{Dickey-Fuller} y en conjunto con la aplicación de primeras diferencias ambas series (nivel y logaritmo) son estacionarias y si tendría que hacerse algun modelaje con las mismas, podría recomendarse aplicar a la serie a nivel.
+
+
+\subsubsection*{Agrupación por mes}
+
+Para la agrupación por mes, evaluaremos en conjunto con las categorías. De manera que, tengamos un mapa de calor que nos muestre el valor de cada mes para cada una de las categorías. Como \textit{Chicó Norte} tiene 29 categorías diferentes. Se usarán las primeras 5 categorías con mayor valor total de transacciones sumadas por mes.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.5]{heatmap_categoriaxmes.png}
+    \caption{Mapa de calor de categoría por mes.}
+    \label{fig:heatmap_categoriaxmes}
+\end{figure}
+
+En la gráfica \ref{fig:heatmap_categoriaxmes} se tienen las primeras 5 categorías con mayor valor total de transacciones umadas por mes. Se observa que cada uno de los comercios tiene diferentes meses en donde tienen registradas más transacciones totales por mes que otros. 
+
+Es decir, se evidencia que la categoría \textit{"Vestuario familiar"} tiene más ventas en diciembre. De manera similar, la cateoria \textit{Agencia de viajes y Operadores turisticos} tiene mpas ventas en junio. También, se evidencia que tanto \textit{"Restaurantes y demás"} en conjunto con \textit{"Comidas rapidas, otras"} no tienen aparente estacionariedad. A diferencia de las categorías de \textit{Vestuario familiar} y \textit{Agencia de viajes y operadores logisticos}. Esto, representa un hallazgo de gran magnitud, porque evidencia que no todos las categorías se comportan igual dentro de una misma zona. En este caso el barrio \textit{Chicó Norte} demuestra que depende de la categoría puedes tener más transacciones en un mes o en otroy también que incluso se puede tener no estacionariedad en la serie de las transacciones totales.
+
+
+\subsubsection*{Agrupación por semana}
+
+Dentro de este análisis, se aportará demás con una agrupación por semana, para determinar ¿cuál es el día de la semana que mayor cantidad de transacciones totales tiene por día de la semana. Comprendiendo que el conjunto ordenado de días es:
+
+\begin{equation}
+D: domingo \rightarrow lunes \rightarrow martes \rightarrow miercoles \rightarrow jueves \rightarrow viernes \rightarrow sábado
+\end{equation}
+
+
+En este sentido, la intución del personal de \textbf{Redeban} indica que no todos los comercios tendrían el mismo interes de abrir todos los días y sería de valor para el negocio, conocer la acumulación en un periodo de tiempo para determinar tiempos de descanso y momentos de aperura de los nuevos puntos de venta.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{barplot_week.png}
+    \caption{Transacciones por día de la semana.}
+    \label{fig:barplot_week}
+\end{figure}
+
+Con esto en mente, se evidencia en la gráfca \ref{fig:barplot_week} que los días jueves y viernes tienen una mayor cantidad de transacciones. Consistente con los días de esparcimiento en Bogotá. Ahora, si evaluamos en este sentido con una visualización que represente un pareto. Tenemos, lo siguiente:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{pareto_week.png}
+    \caption{Pareto semanal.}
+    \label{fig:pareto_week}
+\end{figure}
+
+Como evidenciamos en la gráfica \ref{fig:barplot_week} se tiene un diagrama de barras similar al construido en la gráfica \ref{fig:barplot_week} pero con la acumulación individual de cada uno de los días de la semana (omitiendo el orden dentro del conjunto establecido). En este sentido, se evidencia que el 50\% de las transacciones son realiadas los días viernes, jueves y miércoles. Y tan solo jueves y viernes representan el 43\% de las transacciones. Es decir, un poco más de un tercio $(1/3)$ de las transacciones en la semana son de dos días.
+
+\subsubsection*{Horario de transacciones}
+
+Llegando a este nivel de granuralidad. Se pretende identificar el horario de las transacciones totales de \textit{Chicó Norte}. Antes que nada, el horario que se pretende construir es con base en el análisi semanal y anexando las horas del día \footnote{Las horas se encuentran en horario militar.}. De modo que se tenga un mapa de calor con las horas del día $h$ y los días de la semana $w$, donde $w \in D$\footnote{Conjunto $D$ definido en el análisis semanal}.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.9]{Horario_trx.png}
+    \caption{Horario de las transacciones.}
+    \label{fig:horario_trx}
+\end{figure}
+
+Se evidencia en la gráfica \ref{fig:horario_trx} de la página \pageref{fig:horario_trx} que el horario de las transacciones (compuesto por las horas de la semana y los días de la semana) demuestran que las compras son realizadas en horas de la tarde, especificamente entre las 11:00 y las 18:00 horas. Este permite observarlos días donde existe ausencia de transacciones dentro de horas 13:00 a 14:00. Consistente con las horas de almuerzo.
+
+\section{Metodología}
+\subsection{Identificar los enfoques disponibles para resolver el problema}
+
+En general, se puden clasificar 3 enfoques para solución de problemas. Estos son:
+
+\begin{itemize}
+	\item Prescriptivo
+	\item Predictivo
+	\item Descriptivo
+\end{itemize}
+
+Cada uno de estos tiene una definición implicita en su nombre. Se da por hecho la distinción entre ellas. Para la construcción e identificación de la metodología se parte de la pregunta de negocio:
+
+\begin{center}
+	\textbf{¿Cómo organizar la información transaccional y presentarsela a los clientes de Redeban para que la utilicen en sus procesos de toma de desiciones para abrir un nuevo punto de venta en la ciudad de Bogotá D.C?}
+\end{center}
+
+De acuerdo con esta pregunta, la intención es orgnizar los datos (información transaccional) y presentarsela a los clientes de Redeban para que la integren en sus procesos de toma de decisiones. Especificamente en la selección de una ubicación para un nuevo punto de venta en la ciudad de Bogotá D.C.
+
+Por consiguiente, dentro de estas tres metodologías, la que más se ajusta con organizar la información transaccional, describir la situación actual de las transacciones por zona y categoría (¿qué días hay más transacciones? ¿Dónde están los puntos con más transacciones?, ¿De acuerdo a la categoría de Redeban, que zona tiene más transacciones?, ¿Cúantos comercios hay por zona?, entre otras) es la metodología que puede ayudarnos a entender que está pasando basado en tablas y visualizaciones (histogramas, diagramas de dispersión, etc.). También, en representaciones númericas y no númericas (media, mediana, moda, varianza, diagramas de pareto).
+
+Entregando una solución o herramienta que además de presentar las visualizaciones, permita interactuar con filtros, zonas y categorías para evaluar información desde varias unidades geográficas e incluso, que permita comparar dos zonas dentro de una misma unidad geográfica.
+
+Para tal fin, se establece un dashboard o tablero como herramienta de interacción que permita a los afiliados de Redeban, basar parte de su proceso de toma de decisión en ellas. Teniendo presente, que para un posterior análisis será posible basarse en esta herramienta enfocada en la organización y representación de datos con información de las transacciones por zona en una unidad geográfica.
+
+Este dashboard se debe enfocar en la necesidad actual del afiliado a Redeban y también, aportar a la organizacion para la visualización de datos para la Vicepresidencia de Transformación. Y en este sentido agregar valor al negocio alternativo de \textbf{Redeban} con \textbf{DataMÁS}.
+
+\subsubsection{Estructura de la métodología}
+
+De acuerdo con lo anterior. Se estableció la siguiente estructura para el desarrollo de la herramienta:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.4]{Metodologia.png}
+    \caption{Metodología.}}
+    \label{fig:Metodologia}
+\end{figure}
+
+En donde podemos ver las siguientes fases:
+
+\begin{enumerate}
+	\item Datos
+	\item Modelamiento Descriptivo
+	\item Desarrollo
+	\item API
+	\item Descicion maker
+\end{enumerate}
+
+\subsubsection{Datos}
+
+Dentro de cada una de estas fases se desarrollan distintos procesos para llevar a buen termino la construcción del Dashboard. Para esta fase, se ejecuta lo siguiente:
+
+\begin{enumerate}
+	\item Lectura del modelo de datos y diccionario de datos de \textbf{Redeban}.
+	\item Exploración de almacen de datos de \textbf{Redeban}.
+	\item Selección de tablas o vistas de \textbf{Redeban}.
+	\item Evaluación de capacidad del hardware de \textbf{Redeban}.
+	\item Detección de transformaciones necesarias para extracción y colección de datos para \textbf{Redeban}.
+	\item Construcción del ciclo de extracción de datos y almacen interno de datos para guardar los datos de \textbf{Redeban}.
+	\item Consulta de datos externos.
+	\item Selección de datos externos (Polígonos de todas las localidades, UPZ, barrios y manzanas de Bogotá D.C.).
+	\item Construcción de ciclo de etiquetado basado en longitud y latitud para comercios en Localidades, UPZ, barrios y manzanas.
+\end{enumerate}
+
+Como resultado, se obtubo un almacen de datos interno basado en el ciclo de extracción de información de \textbf{Redeban} y se integra con los polígonos por localidad, UPZ, barrio, localidad etiquetando a cada comercio en uno de ellos.
+
+\subsubsection{Modelamiento Descriptivo}
+
+Este puede dividirse en dos. Primero, una fase exploratoria de datos geográficos y segundo una fase exploratoria de datos históricos.
+
+\begin{enumerate}
+	\item \textbf{EDA: Geográfico}
+	\begin{enumerate}
+		\item Zonificar los comercios
+		\item Selección del tipo de mapa: mapa de calor
+		\item Selección de unidad geográfica de análisis: Barrio
+		\item Selección de la zona en la unidad geográfica: Chicó Norte
+		\item Evaluar si influye en el volumen en de las transacciones la distancia al principal lugar de interés de la zona.
+	\end{enumerate}
+	\item \textbf{EDA: Histórico}
+	\begin{enumerate}
+		\item Selección de unidad geográfica: \textit{Barrio}.
+		\item Selección de zona dentro de la unidad geográfica: \textit{Chicó Norte}.
+		\item Selección de horizonte temporal: \textit{año 2018}.
+		\item Selección de categoría a evaluar: \textit{Todas las categorías de la zona}.
+		\item Agrupación en total transacciones por día.
+		\begin{enumerate}
+			\item Evolución de la serie de tiempo.
+			\item Transformación de la serie con logaritmo.
+			\item Descompocisión temporal de la serie a nivel.
+			\item Descomposición temporal de la serie transformada con logaritmo.
+			\item Estacionariedad.
+			\item Test de Dickey- Fuller a la serie a nivel.
+			\item Test de Dickey- Fuller a la serie transformada con logaritmo.
+		\end{enumerate}
+		\item Agrupación de transacciones por mes y categoría: \textit{Únicamente con las primeras 5 categorías}.
+		\item Agrupación por semana.
+		\item Pareto de la agrupación por semana.
+		\item Agrupación por horas y días de la semana.
+	\end{enumerate}
+\end{enumerate}
+
+Al finalizar esta fase, teníamos conocimiento sobre el coportamiento de los datos para esta zona. Y se evidencia que es posible generalizar y automatizar la creación y construcción de gráficas basadas en los filtros de: Unidad geográfica, Zona dentro de la unidad geográfica, Horizonte temporal y categoría.
+
+\subsubsection{Desarrollo}
+
+Para esta fase se abrirá una sección especfica. No obstante y siguiendo en la dirección de describir las fases. Tenemos que en la fase de desarrollo, se genera:
+
+\begin{enumerate}
+	\item Construcción de la plataforma.
+	\begin{enumerate}
+		\item Identificación de la estructura del dashboard.
+		\item Selección de secciones y módulos.
+	\end{enumerate}
+	\item Extracción de información desde almacen interno.
+	\item Construccion de módulos localmente.
+	\item Pruebas y aprobación del dashboard.
+	\item Ajustes a los módulos.
+	\item Desarrollo en productivo.
+	\begin{enumerate}
+		\item selección y construcción de contenedor.
+		\item Creación de ambiente basado en \textit{Ubuntu}.
+		\item Construcción de desarrollo automático del dashboard.
+		\item Lanzamiento de proceso automático de desarrollo del dashboard.
+		\item Pruebas integrales en ambiente productivo de \textbf{Redeban}.
+	\end{enumerate}
+\end{enumerate}
+
+\shadowbox{
+	\begin{minipage}[b][1\height][t]{0.9\textwidth}
+	NOTA: En la sección de desarrollo solo se discutirá la construcción de la plataforma y una sección sobre la motivación e intención de cada modulo del dashboard.
+\end{minipage}}\\
+
+\subsubsection{API}
+
+Para esta fase, ya se habrá construido la interfaz interactiva como herramienta. Únicamente, esta fase es probar la conexión entre usuario y solución. Con el fin de detectar fallas tempranas, errores de código y demás.
+
+En esta fase, también se expone a internet con acceso limitado para los afiliados que se encuentrén interesados en el desarrollo de este tipo de herramientas con el fin de integrarlas en  su proceso de decisión. Especificamente, para la selección de una ubicación de un nuevo punto de venta en Bogotá D.C.
+
+\subsection{Selección de herramienta de software}
+
+Para determinar la herramienta de software se tienen varias consideraciones posibles:
+
+\begin{itemize}
+	\item Tiempo.
+	\item Precisión del modelo.
+	\item Relevancia y alcance del proyecto.
+	\item Disponibilidad y preparación de los datos.
+	\item Popularidad de la metodología.
+\end{itemize}
+
+Teniendo esto presente. Para el dearrollo del dashboard se cuenta con tiempo para construcción en un software computacional que permita hacer visualizaciones, crear una interfaz gráfica y demostrar herramientas en el back-end.
+
+La precisión entendida como un grado de consistencia dentro de los datos es alta. Pues, dentro del análisis muchos resultados se conducen a consistencias e intuciones.
+
+Este, puede ser el primer proyecto de \textbf{Redeban} que sale del esquema regular de sus proyectos, debido a que la normalidad en los tableros no permite dejar un almacenamiento de datos con modelos analíticos. Muchas veces, los resultados de los modelos anaíticos terminan en una tabla adiconal dentro del amacen de datos esperando por su uso. Pues, una de las expectativas es poder desarrollar detrás del dashboard modelamientos analíticos sin tener que guardar los resultados en un almacen de datos.
+
+La disponibilidad de los datos es alta. Así mismo, se realiza un análisis sobre una zona para evaluar tiempos y número de transformaciones para la preparación de los datos.
+
+Existen muchas metdologías y software que puede responder con base en estas carácteristicas. Sin embargo, no todos tienen una respuesta similar. Se encontró que existen tres tipos diferentes que cumplen con la popularidad (requerida por \textbf{Redeban}) para el desarrollo del dashboard.
+
+La primera herramienta es \href{https://www.streamlit.io/}{Streamlit}, una herramienta para desarrollar tableros. Estos son generalmente desarrollos peronales y no se usa para hacer soluciones empresariales. No obstate, pueden realziarse desarrollos de tableros en tiempos reducidos.
+
+La segunda es \href{https://dash.plotly.com/}{Dash}, una herrameinta para desarrollos más empresariales. Pero que requiere de un alto nivel de conociiento en programacion y HTML. Adicional, para construir widgets, requeire de un alto número de librerias.
+
+Y finalemete, tenemos \href{https://shiny.rstudio.com/}{Shiny} una herramienta capas de desarrollar soluciones personales y empresariales. Además de tener widgets con poco uso de librerías. Sin embargo, para el lanzamiento en productivo cambian las interacciones con respecto al desarrollo local. Y también, para el desarrollo de soluciones en un servidor requiere de instalaciones adicionales fuera de las librerías demandadas por el tablero.
+
+Después de evaluar, cada una de las tres soluciones más populares para tableros que pueden guardar por detrás modelos analíticos. Se opta por \textbf{Shiny} ya que el desarrollo en tiempo es menor que en \textbf{Dash by plotly}. Adicionalemente, esta herramienta también puede usar plotly con libertad dentro de su desarrollo.
+
+Para el desarrollo. Se tiene presente, por temás de escalabilidad se generará un contenedor de \href{https://www.docker.com/}{Docker} con un ambiente basado en \href{https://ubuntu.com/}{Ubuntu}
+
+
+\subsection{Selección y evaluación de metodología}
+
+Se elecciona un dashboard. Básicamente, porque se espera dar una solucion que ordene y comunique la situación actual de las transacciones en distintos niveles de análisis. De manera que el usuario final (en este caso, los afiliados a Redeban) usarán para determinar la situación actual dentro de una unidad de geográfica y una zona especifica dentro de esta unidad geográfica.
+
+Con este tablero. Aportamos al valor del nuevo modelo de negocio alternativo \textbf{DataMÁS} pues su proposito es brindar herramientas a los afiliados de Redeban para que puedan integrar y análizar desde la perspectiva ofrecida por Redeban. También, el tablero podrá responder preguntas que por intución se consideran ciertas y que al evaluarlas son consistentes. Sin embargo, mejor que la intución son los datos que transforman información a decisiónes con más conocimeinto y credibilidad.
+
+Existen algunas limitaciones, basadas en la implementación. Se requiere de un servidor con alto nivel de memoria para alojar la solución y esta puede soportar un número de personas limitadas. También, la herramienta inicialmente, no tendrá autenticación de usuarios y se considerará una muestra del valor de los datos (según Redeban) hasta que se consideré oportuno agregar este item a la solución.
+
+El escalamiento, es sencillo, pues todas las aplicaciones funcionan con base en el mismo sistema de desarrollo. De manera que puede actualizarse el contenedor, agregando otro dashboard y este usará el mismo puerto. Esto permite mantener los demás puertos del servidor disponibles para usos diversos como microservicios o escalamientos diferentes.
+
+En este momento, se ha detectado que únicamente se requiere de las librerías demandadas por el dashboard y también de la instalación de \href{https://rstudio.com/products/shiny/shiny-server/}{Shiny Server} para disponer de la herramienta dentro del servidor empresarial.
+
+\section{Desarrollo}
+\subsection{Construcción de Plataforma}
+
+La construcción de la herrameinta se basará en las necesidades detectadas por \textbf{Redeban} a los afiliados. En consecución, se delimitan las secciones y los módulos requeridos. Y luego, se filtran los módulos o secciones prioritarias a incluir dentro dela herramienta.
+
+\subsubsection{Identificar la estructura de modelamiento}
+
+La estructura de la aplicación es basada en la extracción de datos del almacen interno y la construcción de una interfaz que permita visualizar la información ordenada. Tenemos, la siguiente estructura:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{Metodologia_2.png}
+    \caption{Metodología de construcción del Dashboard.}
+    \label{fig:metodoologia_2}
+\end{figure}esquema
+
+En la figura \ref{fig:metodoologia_2} tenemos una ilustración que muestra el proceso que realiza el dashboard. Iniciando con la extracción de datos desde \textbf{Redeban}. 
+
+Luego, esta información es almacenada para luego ser procesada. A continuación, se crea la visualización como reultado de la herrameinta. Para finalmente, dentro del dashboard implementar dentro de una interfaz gráfica las visualizaciones predeterminadas.
+
+Cada un de las secciones tendrá la siguiente forma, basada en \href{https://rstudio.github.io/shinydashboard/}{Shiny Dashboard}:
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{esquema.png}
+    \caption{Esquema básico de los módulos y secciones.}
+    \label{fig:esquema}
+\end{figure}
+
+Este esquema ilustrado en la gráfica \ref{fig:esquema} muestra 3 elementos (cada uno de un color distinto). En colo \textit{negro} se conoce como sidebar (barra lateral) y funciona \textit{en algunos casos} para colocar los módulos y filtros del tablero.
+
+En color \textit{azul claro} es el background y en este es donde se dispondrán las visualizaciones. Y por último, en color \textit{azul celeste} el header, donde pueden mostrarse notificaciones y autenticaciones, en caso que la solución lo requiera.
+
+\shadowbox{
+	\begin{minipage}[b][1\height][t]{0.9\textwidth}
+	NOTA: Esta hace parte de una referencia para el esquema de la plataforma. Es posible que en la generación del tablero tenga los mismos componente pero en colores distintos.
+\end{minipage}}\\
+
+
+\subsubsection{Selección de secciones y módulos}
+
+Para la selección de los módulos. Se presentaron varias. Sin embargo, solo se discutiran las 3 seleccionadas. Estas fueron:
+
+\begin{enumerate}
+	\item Análisis Geográfico.
+	\item Análisis Temporal.
+	\item Hallazgos.
+\end{enumerate}
+
+\subsection{Filtros}
+
+Para la interacción con el usuario final, se pensó en establecer los mismos filtros para todas las secciones. Los filtros, son los siguientes:
+
+\begin{itemize}
+	\item Unidad geográfica: Localidad, UPZ, Barrio.
+	\item Categoria: Muestra solo las categorías elegibles para la zona.
+	\item Tiempo: Selección de horizonte temporal a evaluar.
+	\item Zona: Mustra solo las zonas elegibles dentro de una unidad geográfica.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.4]{filtros_1.png}
+    \caption{Filtros: Unidad geográfica, Categoría y Tiempo.}
+    \label{fig:filtros_1}
+\end{figure}
+
+A continuación en la gráfica \ref{fig:filtros_1} y en la \ref{fig:filtros_2} se evidencian las características e interface de estos widgets.
+
+A diferencia del primer conjunto de los tres filtros, en la gráfica \ref{fig:filtros_2} se tiene un solo filtro \textit{Zona}. Esto dado que, dentro de este mismo modulo también se cuenta con la barra de progreso. Esta se activa cada vez que algún afiliado a \textbf{Redeban} ejecute alguna visualización y su finalidad es mostrar el porcenatje de avance.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.4]{filtros_2.png}
+    \caption{Filtros: Zona}
+    \label{fig:filtros_2}
+\end{figure}
+
+\subsection{Modulos}
+
+Cada uno de estos tres módulos, cuenta con una breve descripción, una motivación y una intención para trasmitir al afiliado de Redeban.
+
+\begin{enumerate}
+	\item Análisis Geográfico.
+	\item Análisis Temporal.
+	\item Hallazgos.
+\end{enumerate}
+
+
+\subsubsection{Descripción}
+
+\begin{enumerate}
+	\item Análisis Geográfico: Este contiene además de los filtros ya mencionados, dos mapas de calor. Donde entre más alto el valor observado, mayor tonalidad roja tendrá el mapa.
+	\item Análisis Temporal: Este cuenta con cerca de 7 módulos. Cada uno con la intención de mostrar el comportamiento de acuerdo a los intereses descritos por \textbf{Redeban} sobre sus afiliados.
+	\item Hallazgos: Este cuenta con 6 módulos, agrupados en pares. Cada uno representa una parte del análisis de pareto de las transacciones.
+\end{enumerate}
+
+\subsubsection{Pregunta de Negocio a responder}
+
+\begin{enumerate}
+	\item Análisis Geográfico: ¿como se distribuyen geográficamente las transacciones de Redeban?
+	\item Análisis Temporal: ¿Como es el comportameinto diario, semanal y  mensual de las transacciones?
+	\item Hallazgos: ¿Cuántos locales son los que tienen la mayor cantidad y valor de las transacciones? ¿Cuántos comercios tienen un aporte marginal al valor total de las transacciones en la zona?
+\end{enumerate}
+
+
+\subsection{Funcionalidad de la herramienta}
+
+La herramienta, terminan siendo intuitiva. Pues, únicamente lo que debe hacer es modificar según sus necesidades los filtros previamente indicados. Sin embargo, vale la pena mostrar la interface que tiene el dashboard para dimensionar mejor dicha interacción.
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{funcionamiento_1.png}
+    \caption{Funcionamiento de la sección: Análisis Geográfico}
+    \label{fig:funcionamiento_1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{funcionamiento_2.png}
+    \caption{Funcionamiento de la sección: Análisis Temporal}
+    \label{fig:funcionamiento_2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+	\includegraphics[scale=0.3]{funcionamiento_3.png}
+    \caption{Funcionamiento de la sección: Hallazgos}
+    \label{fig:funcionamiento_3}
+\end{figure}
+
+En resumen, para dar un acrcamiento. En las gráficas: \ref{fig:funcionamiento_1}, \ref{fig:funcionamiento_2} y \ref{fig:funcionamiento_3} vemos parte del tablero construido.
+
+
+\subsection{Escalabilidad de la herramienta}
+
+La herramienta tiene un alto nivel de escalabilidad, dado que con la arquitectura actual puede tener desarrollos donde el consumo será marginal. Adicionalemnte, solo usará un puerto para todas las herrameintas construidas con esta misma arquitectura y si son similares, solo consumiran al realizar un proceso determinado.
+
+\subsection{Requerimientos de la herramienta}
+
+\begin{itemize}
+	\item Shiny Dashboard: v0.7.1
+	\item Shiny: v0.1.5
+	\item Shiny Server: v1.5.15.953
+	\item tidyverse v1.3.0
+	\item leaflet: v2.0.3
+	\item leaflet:.extras v1.10.2
+	\item geojsonio: v0.9.2
+	\item plotly: v0.9.0
+	\item shinyWidgets: v0.5.4
+	\item shinyalert: v2.0.0
+\end{itemize}
+
+\section{Conclusiones}
+\subsection{Conclusiones}
+
+\begin{itemize}
+	\item La toma de decisiones, debe ser acompañado por datos que aporten valor al negocio. En este sentido, carece de credibilidad decisión alguna que se tome basado en experiencia empírica teniendo la oportunidad de explotar los datos para fundamentar su decisión.
+	\item Los mapas de calor son útiles para ordenar y representar la información transaccional de Redeban. El análisis se hace más específico al poder seleccionar variables para filtar la información como: la unidad geográfica, el rango de tiempo a analizar y la categoría como se implementó en el dashboard.
+\end{itemize}
+
+\subsection{Recomendaciones}
+\begin{itemize}
+	\item La herramienta, apoya la toma de decisiones para seleccionar un barrio para el punto de venta de un nuevo comercio. Sin embargo, aún puede tener más capas geográficas externas a \textbf{Redeban} que apoyen la toma de decisión.
+	\item El comportamiento por categoría es diferente dentro de una misma zona. De manera, que es necesario examinar dentro de la zona en especifico el comportamiento de la categoría para aumentar la credibilidad de la toma de decisión.
+	\item Las transacciones deben capturar la información de georeferenciación del dispositivo desde el que se están realizado y no usar la dirección del comercio como ubicación de las transacciones.
+	\item Realizar estudios para conocer mejor las necesidades de información que tienen los comercios afiliados a \textbf{Redeban} al momento de escoger la ubicación de un nuevo punto de venta.
+	\item Establecer acuerdos con sus clientes para mejorar el conocimiento que se tiene de los tarjetahabientes. con información socioeconómica, entre la que se puede encontrar el lugar de residencia para que de esa forma el establecimiento comercial y Redeban se identifique mejor la ubicación en la que se encuentran los clientes.
+	\item Implementar un modelo de centro de masa para identificar de forma automática lugares de interés que afectan el volumen de las transacciones realizadas por los comercios.
+\end{itemize}
+
+\newpage
+
+\todo{Referencias paquetes usados en análisis y dshboard. Junto con el lenguaje.}
+\printbibliography
+
+\end{document}
